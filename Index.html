@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roll for HD: The UNSW Gacha</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --unsw-yellow: #FFE600;
+      --unsw-yellow-hover: #E5CF00;
+      --unsw-navy: #001128;
+      --unsw-navy-light: #002147;
+      --card-bg: #0b1a30;
+      --card-inner: #132742;
+      --legendary: #FFB300;
+      --epic: #B336FF;
+      --rare: #00A3FF;
+      --common: #7F8C8D;
+      --text: #FFFFFF;
+      --text-muted: #9BB0C1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background: var(--unsw-navy);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px 12px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      background: linear-gradient(180deg, var(--unsw-navy-light) 0%, var(--card-bg) 100%);
+      padding: 18px 14px;
+      border-radius: 16px;
+      border: 2px solid var(--unsw-yellow);
+      box-shadow: 0 8px 30px rgba(255, 230, 0, 0.15);
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--unsw-yellow);
+      letter-spacing: -0.3px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    header p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Dashboard */
+    .dashboard {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid rgba(255, 230, 0, 0.2);
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .tickets-badge {
+      background: var(--unsw-yellow);
+      color: #000;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(255, 230, 0, 0.3);
+    }
+
+    .pity-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pity-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .pity-labels span.highlight {
+      color: var(--unsw-yellow);
+      font-weight: 800;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 14px;
+      background: #000a18;
+      border-radius: 7px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #b336ff, var(--unsw-yellow));
+      border-radius: 7px;
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Controls */
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    button.btn-pull {
+      background: linear-gradient(135deg, #102a4e, #0b1c36);
+      border: 1.5px solid rgba(255, 230, 0, 0.4);
+      color: white;
+      padding: 13px 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    button.btn-pull:hover:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: var(--unsw-yellow);
+      box-shadow: 0 6px 18px rgba(255, 230, 0, 0.25);
+    }
+
+    button.btn-pull:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    button.btn-pull .subtext {
+      font-size: 0.7rem;
+      color: var(--unsw-yellow);
+      font-weight: 600;
+    }
+
+    /* Inventory View Section & Tabs */
+    .results-section {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      min-height: 290px;
+    }
+
+    .tab-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+    }
+
+    .tab-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--card-inner);
+      color: var(--unsw-yellow);
+      border: 1px solid rgba(255, 230, 0, 0.3);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+    }
+
+    /* Cards */
+    .gacha-card {
+      background: #061122;
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      position: relative;
+      animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .gacha-card:hover {
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.65); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Star Bookmark Button */
+    .star-btn {
+      position: absolute;
+      top: 5px;
+      right: 6px;
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.15s ease, transform 0.15s ease;
+      z-index: 5;
+    }
+
+    .star-btn:hover {
+      transform: scale(1.25);
+    }
+
+    .star-btn.saved {
+      color: var(--unsw-yellow);
+      text-shadow: 0 0 8px rgba(255, 230, 0, 0.6);
+    }
+
+    .card-rarity {
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+
+    .card-emoji {
+      font-size: 1.8rem;
+      margin: 2px 0;
+    }
+
+    .card-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1.25;
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Rarity Card Styles */
+    .card-legendary {
+      border-color: var(--legendary);
+      box-shadow: 0 0 14px rgba(255, 179, 0, 0.4);
+      background: linear-gradient(180deg, rgba(255, 179, 0, 0.15), #061122);
+    }
+    .card-legendary .card-rarity { background: var(--legendary); color: #000; }
+
+    .card-epic {
+      border-color: var(--epic);
+      box-shadow: 0 0 12px rgba(179, 54, 255, 0.35);
+      background: linear-gradient(180deg, rgba(179, 54, 255, 0.15), #061122);
+    }
+    .card-epic .card-rarity { background: var(--epic); color: #fff; }
+
+    .card-rare {
+      border-color: var(--rare);
+      box-shadow: 0 0 8px rgba(0, 163, 255, 0.25);
+      background: linear-gradient(180deg, rgba(0, 163, 255, 0.15), #061122);
+    }
+    .card-rare .card-rarity { background: var(--rare); color: #fff; }
+
+    .card-common {
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    .card-common .card-rarity { background: var(--common); color: #fff; }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 17, 40, 0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 22px;
+      width: 100%;
+      max-width: 440px;
+      border: 1.5px solid var(--unsw-yellow);
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.7);
+      animation: popIn 0.25s ease;
+      position: relative;
+    }
+
+    /* Detail Modal Specifics */
+    .detail-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .detail-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .detail-emoji {
+      font-size: 2.8rem;
+      background: var(--card-inner);
+      padding: 6px;
+      border-radius: 12px;
+    }
+
+    .detail-title h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .detail-title p {
+      font-size: 0.75rem;
+      color: var(--unsw-yellow);
+      font-weight: 600;
+    }
+
+    .detail-bio {
+      background: var(--card-inner);
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      color: #d8e2ec;
+      line-height: 1.45;
+      margin-bottom: 16px;
+      font-style: italic;
+      border-left: 3px solid var(--unsw-yellow);
+    }
+
+    .stats-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .stat-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .stat-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .stat-bar-bg {
+      height: 8px;
+      background: #000c1c;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+    }
+
+    .btn-action {
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      transition: all 0.2s;
+    }
+
+    .btn-close {
+      background: var(--card-inner);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Quiz Modal */
+    .quiz-question {
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      line-height: 1.4;
+      color: #fff;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .quiz-option-btn {
+      background: var(--card-inner);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: left;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      line-height: 1.35;
+    }
+
+    .quiz-option-btn:hover {
+      border-color: var(--unsw-yellow);
+      background: #173256;
+    }
+
+    .quiz-hint-box {
+      background: rgba(255, 230, 0, 0.08);
+      border: 1px dashed var(--unsw-yellow);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      color: #ffe600;
+      line-height: 1.35;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .quiz-feedback-box {
+      font-size: 0.8rem;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      line-height: 1.4;
+      display: none;
+    }
+
+    /* Special Animation Overlays */
+    #fxOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 2000;
+      display: none;
+    }
+
+    .rare-pulse {
+      animation: rareFlash 0.75s ease-out;
+    }
+    @keyframes rareFlash {
+      0% { box-shadow: inset 0 0 100px #00a3ff; opacity: 1; }
+      100% { box-shadow: inset 0 0 0 transparent; opacity: 0; }
+    }
+
+    .epic-shake {
+      animation: epicFlash 1s ease-out;
+    }
+    @keyframes epicFlash {
+      0% { box-shadow: inset 0 0 140px #b336ff; background: rgba(179, 54, 255, 0.2); }
+      50% { box-shadow: inset 0 0 60px #b336ff; }
+      100% { box-shadow: inset 0 0 0 transparent; background: transparent; }
+    }
+
+    .legendary-burst {
+      animation: legFlash 1.6s ease-out;
+    }
+    @keyframes legFlash {
+      0% { box-shadow: inset 0 0 200px #ffe600; background: rgba(255, 230, 0, 0.35); }
+      40% { box-shadow: inset 0 0 150px #ffaa00; background: rgba(255, 170, 0, 0.2); }
+      100% { box-shadow: inset 0 0 0 transparent; background: transparent; }
+    }
+
+    /* Confetti Particle Canvas */
+    #confettiCanvas {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 2001;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="confettiCanvas"></canvas>
+  <div id="fxOverlay"></div>
+
+  <div class="container">
+    <header>
+      <h1>ROLL FOR HD: THE UNSW GACHA</h1>
+      <p>Media Theory Facilitation Banner • Pull for Academic Survival</p>
+    </header>
+
+    <div class="dashboard">
+      <div class="status-row">
+        <span>Draw Tickets:</span>
+        <div class="tickets-badge">
+          <span>🎟️</span>
+          <span id="ticketCount">20</span> Left
+        </div>
+      </div>
+
+      <div class="pity-container">
+        <div class="pity-labels">
+          <span>Legendary Hard Pity Guarantee</span>
+          <span class="highlight"><span id="pityCount">0</span> / 70 Pulls</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="pityBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-pull" id="btnPull1" onclick="handlePull(1)">
+        <span>Draw ×1</span>
+        <span class="subtext">Cost: 1 Ticket</span>
+      </button>
+      <button class="btn-pull" id="btnPull10" onclick="handlePull(10)">
+        <span>Draw ×10</span>
+        <span class="subtext">Cost: 10 Tickets</span>
+      </button>
+    </div>
+
+    <div class="results-section">
+      <div class="tab-bar">
+        <div class="tab-group">
+          <button class="tab-btn active" id="tabRecent" onclick="switchTab('recent')">Recent 10</button>
+          <button class="tab-btn" id="tabSaved" onclick="switchTab('saved')">Saved ⭐ (<span id="savedCount">0</span>)</button>
+        </div>
+        <span style="font-size: 0.75rem; color: var(--text-muted);" id="pullsInfo">Total: 0</span>
+      </div>
+
+      <div class="card-grid" id="displayGrid">
+        <!-- Injected Cards -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Character Detail Modal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-content">
+      <div id="detailRarityBadge" class="detail-badge">RARITY</div>
+      <div class="detail-header">
+        <div class="detail-emoji" id="detailEmoji">🎓</div>
+        <div class="detail-title">
+          <h3 id="detailTitle">Name</h3>
+          <p id="detailBuff">Perk</p>
+        </div>
+      </div>
+      <div class="detail-bio" id="detailBio"></div>
+      <div class="stats-list" id="detailStats"></div>
+      <button class="btn-action btn-close" onclick="closeDetailModal()">Back to Gacha</button>
+    </div>
+  </div>
+
+  <!-- Academic Quiz Refill Modal (3 Questions Max) -->
+  <div class="modal-overlay" id="quizModal">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span style="font-size: 0.72rem; font-weight: 800; color: var(--unsw-yellow); text-transform: uppercase;">
+          Academic Bonus Refill (<span id="quizIndexLabel">1</span>/3)
+        </span>
+        <span style="font-size: 0.7rem; color: var(--text-muted);">Reward: +10 Free Draws</span>
+      </div>
+      <div class="quiz-question" id="quizQuestionText"></div>
+      <div class="quiz-hint-box" id="quizHintBox"></div>
+      <div class="quiz-options" id="quizOptionsContainer"></div>
+      <div class="quiz-feedback-box" id="quizFeedbackBox"></div>
+      <button class="btn-action btn-close" id="btnQuizClose" style="display: none;" onclick="closeQuizModal()">Return</button>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let state = {
+      tickets: 20,
+      pityCount: 0,
+      totalPulls: 0,
+      currentTab: 'recent',
+      quizAttemptsUsed: 0,
+      recentHistory: [], // Max 10 items
+      savedCards: []      // Bookmarked cards
+    };
+
+    const HARD_PITY = 70;
+
+    // Database with 1 Legendary, 1 Epic, 3 Rares, 5 Commons
+    const DATABASE = {
+      legendary: [
+        {
+          id: 'leg_convener',
+          rarity: 'Legendary',
+          title: 'Course Convener',
+          emoji: '👑',
+          buff: 'Guaranteed HD & Attendance Waiver',
+          class: 'card-legendary',
+          color: '#FFB300',
+          bio: 'The mythical sovereign of Moodle. Rarely seen in person, their emails hold the absolute power of life, death, and grade scaling.',
+          stats: [
+            { name: 'Academic Authority', val: 99, max: 100 },
+            { name: 'Email Response Delay', val: 95, max: 100 },
+            { name: 'Divine Grace', val: 12, max: 100 }
+          ]
+        }
+      ],
+      epic: [
+        {
+          id: 'epic_tutor',
+          rarity: 'Epic',
+          title: 'Beloved Tutor',
+          emoji: '☕',
+          buff: 'Full Participation & 24h Extension',
+          class: 'card-epic',
+          color: '#B336FF',
+          bio: 'Nods encouragingly during your clumsy presentations. Holds the sacred rubric pen and secretly loves giving bonus marks.',
+          stats: [
+            { name: 'Empathy & Patience', val: 94, max: 100 },
+            { name: 'Rubric Adherence', val: 75, max: 100 },
+            { name: 'Caffeine Dependence', val: 90, max: 100 }
+          ]
+        }
+      ],
+      // 3 Rares
+      rare: [
+        {
+          id: 'rare_carry',
+          rarity: 'Rare',
+          title: 'Carry Teammate',
+          emoji: '💻',
+          buff: 'Auto-Generates Complete Slides & Script',
+          class: 'card-rare',
+          color: '#00A3FF',
+          bio: 'Types furiously at 3 AM while drinking flat white and murmuring: "Don\'t worry guys, I will fix the whole visual layout."',
+          stats: [
+            { name: 'Slide Aesthetics', val: 92, max: 100 },
+            { name: 'Insomnia Resistance', val: 96, max: 100 },
+            { name: 'Sanity', val: 20, max: 100 }
+          ]
+        },
+        {
+          id: 'rare_notes',
+          rarity: 'Rare',
+          title: 'HD Notes Provider',
+          emoji: '📖',
+          buff: 'Color-Coded Notion Summary for Week 1-10',
+          class: 'card-rare',
+          color: '#00A3FF',
+          bio: 'Takes verbatim notes of every single word said in lectures. Generously shares the Notion link 2 days before the exam.',
+          stats: [
+            { name: 'Typing Speed (WPM)', val: 95, max: 100 },
+            { name: 'Notion Formatting', val: 98, max: 100 },
+            { name: 'Sleep Schedule', val: 35, max: 100 }
+          ]
+        },
+        {
+          id: 'rare_coffee',
+          rarity: 'Rare',
+          title: 'Coffee Courier',
+          emoji: '🏃‍♂️',
+          buff: 'Brings Free Flat White to Morning Tutorial',
+          class: 'card-rare',
+          color: '#00A3FF',
+          bio: 'Always offers to make an Upper Campus coffee run right before the 9 AM tutorial starts. The true emotional anchor of the team.',
+          stats: [
+            { name: 'Order Accuracy', val: 99, max: 100 },
+            { name: 'Walking Speed', val: 88, max: 100 },
+            { name: 'Bank Balance', val: 30, max: 100 }
+          ]
+        }
+      ],
+      // 5 Commons (College archetypes)
+      common: [
+        {
+          id: 'com_ghost',
+          rarity: 'Common',
+          title: 'The Ghost Member',
+          emoji: '👻',
+          buff: 'Vanishes from WhatsApp Until Submission',
+          class: 'card-common',
+          color: '#7F8C8D',
+          bio: 'Shows up only in the final 5 minutes asking: "Hey guys, what should I add to slide 2?"',
+          stats: [
+            { name: 'Ghosting Speed', val: 98, max: 100 },
+            { name: 'WhatsApp Read Rate', val: 5, max: 100 },
+            { name: 'Excuse Plausibility', val: 82, max: 100 }
+          ]
+        },
+        {
+          id: 'com_zombie',
+          rarity: 'Common',
+          title: 'Main Library Zombie',
+          emoji: '🧟',
+          buff: 'Occupies Level 3 Desk for 14 Straight Hours',
+          class: 'card-common',
+          color: '#7F8C8D',
+          bio: 'Stares blankly at a blank Google Doc surrounded by Boost Juice cups and empty highlighters.',
+          stats: [
+            { name: 'Seat Squatting', val: 94, max: 100 },
+            { name: 'Actual Word Output', val: 10, max: 100 },
+            { name: 'Dark Circles Level', val: 92, max: 100 }
+          ]
+        },
+        {
+          id: 'com_chatter',
+          rarity: 'Common',
+          title: 'Over-Eager YAP Master',
+          emoji: '🗣️',
+          buff: 'Takes 15 Mins of Tutorial Q&A by Themselves',
+          class: 'card-common',
+          color: '#7F8C8D',
+          bio: 'Connects every single media reading back to their obscure, personal pet hobby.',
+          stats: [
+            { name: 'Verbal Stamina', val: 96, max: 100 },
+            { name: 'Class Frustration', val: 88, max: 100 },
+            { name: 'Relevance to Rubric', val: 28, max: 100 }
+          ]
+        },
+        {
+          id: 'com_procrastinator',
+          rarity: 'Common',
+          title: 'Deadline Gambler',
+          emoji: '⏳',
+          buff: 'Starts Essay at 10:45 PM (Due 11:59 PM)',
+          class: 'card-common',
+          color: '#7F8C8D',
+          bio: 'Believes adrenaline is the only authentic fuel for university scholarship. Submits with 12s left.',
+          stats: [
+            { name: 'Adrenaline Surge', val: 98, max: 100 },
+            { name: 'Turnitin Panic', val: 94, max: 100 },
+            { name: 'Citation Integrity', val: 20, max: 100 }
+          ]
+        },
+        {
+          id: 'com_latte',
+          rarity: 'Common',
+          title: 'Iced Latte Commuter',
+          emoji: '🥤',
+          buff: 'Arrives 20 Mins Late with Fresh Takeaway',
+          class: 'card-common',
+          color: '#7F8C8D',
+          bio: 'Blames the Light Rail from Central. Slips into the back row with oat milk foam on their sleeve.',
+          stats: [
+            { name: 'Coffee Aesthetic', val: 90, max: 100 },
+            { name: 'Punctuality', val: 12, max: 100 },
+            { name: 'Commuter Resilience', val: 72, max: 100 }
+          ]
+        }
+      ]
+    };
+
+    // 3 Course Questions for Bonus Tickets
+    const QUIZ_LIST = [
+      {
+        q: "Where does the word 'Gacha' originate from, and what is its core gameplay mechanic?",
+        opts: [
+          "A) Japanese crane games where players win guaranteed plush toys",
+          "B) Japanese capsule toy vending machines where players spend currency for randomized virtual rewards",
+          "C) South Korean trading card games with fixed-price purchases",
+          "D) Traditional tabletop board games based on dice rolling and storytelling"
+        ],
+        ans: 1, // B
+        hint: "Hint: Think about the cranking sound made by Japanese capsule toy machines (Gachapon) and how mobile games turn that blind-box surprise into digital rolls!",
+        exp: "Correct! 'Gacha' mimics the onomatopoeia of cranking capsule toy machines (Gachapon). In modern games, players spend currency to pull for randomized items."
+      },
+      {
+        q: "According to the presentation, what does the concept of 'Mukokuseki' (無国籍) describe in games like Cookie Run: Kingdom?",
+        opts: [
+          "A) An emphasis on strict, authentic national identity and historical realism",
+          "B) A design philosophy where all cultural traditions and influences are completely eliminated",
+          "C) A 'stateless' quality with blended cultural elements that broadens global appeal",
+          "D) An exclusive localization strategy focused strictly on domestic East Asian markets"
+        ],
+        ans: 2, // C
+        hint: "Hint: The term literally translates to 'without nationality,' referring to fictional worlds that blend diverse cultural aesthetics so anyone around the world can easily enjoy them.",
+        exp: "Correct! Coined in media studies by Koichi Iwabuchi (2002), mukokuseki refers to deliberate lack of explicit national markers or hybrid mixing of cultural elements."
+      },
+      {
+        q: "How does the presentation explain the relationship between parasocial relationships and long-term player engagement in gacha games?",
+        opts: [
+          "A) Players develop one-sided emotional attachments to characters, which encourages continuous play and collection",
+          "B) Mandatory real-time multiplayer co-op forces players to bond closely with other teammates",
+          "C) Randomized probability mechanics encourage players to focus solely on analytical odds rather than emotional connections",
+          "D) Fictional characters are programmed to reciprocate genuine, two-way interpersonal feelings with the player"
+        ],
+        ans: 0, // A
+        hint: "Hint: This psychological term refers to a one-sided emotional connection with fictional media characters, making players feel close to their favorite heroes.",
+        exp: "Correct! Parasocial relationships are one-sided emotional bonds formed with fictional characters. Through affective embedding, emotional attachment drives retention and collection."
+      }
+    ];
+
+    function updateUI() {
+      document.getElementById('ticketCount').textContent = state.tickets;
+      document.getElementById('pityCount').textContent = state.pityCount;
+      document.getElementById('pullsInfo').textContent = `Total: ${state.totalPulls}`;
+      document.getElementById('savedCount').textContent = state.savedCards.length;
+
+      const progressPct = Math.min((state.pityCount / HARD_PITY) * 100, 100);
+      document.getElementById('pityBar').style.width = `${progressPct}%`;
+
+      document.getElementById('btnPull1').disabled = state.tickets < 1;
+      document.getElementById('btnPull10').disabled = state.tickets < 10;
+
+      renderCards();
+    }
+
+    // Switch Between Recent 10 & Saved
+    function switchTab(tab) {
+      state.currentTab = tab;
+      document.getElementById('tabRecent').classList.toggle('active', tab === 'recent');
+      document.getElementById('tabSaved').classList.toggle('active', tab === 'saved');
+      renderCards();
+    }
+
+    // Card Renderer
+    function renderCards() {
+      const grid = document.getElementById('displayGrid');
+      grid.innerHTML = '';
+
+      const items = (state.currentTab === 'recent') ? state.recentHistory : state.savedCards;
+
+      if (items.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 30px;">
+          ${state.currentTab === 'recent' ? 'No pulls yet. Tap Draw to test your luck!' : 'No saved cards yet. Click the ⭐ star on any card to save it!'}
+        </div>`;
+        return;
+      }
+
+      items.forEach(card => {
+        const isSaved = state.savedCards.some(sc => sc.uniqueId === card.uniqueId);
+        const cardEl = document.createElement('div');
+        cardEl.className = `gacha-card ${card.class}`;
+        cardEl.onclick = (e) => {
+          // If star clicked, do not open detail modal
+          if (e.target.classList.contains('star-btn')) return;
+          openDetailModal(card);
+        };
+
+        cardEl.innerHTML = `
+          <span class="star-btn ${isSaved ? 'saved' : ''}" onclick="toggleSaveCard('${card.uniqueId}')">★</span>
+          <div class="card-rarity">${card.rarity}</div>
+          <div class="card-emoji">${card.emoji}</div>
+          <div class="card-title">${card.title}</div>
+        `;
+        grid.appendChild(cardEl);
+      });
+    }
+
+    function toggleSaveCard(uniqueId) {
+      const existsIndex = state.savedCards.findIndex(c => c.uniqueId === uniqueId);
+      if (existsIndex > -1) {
+        state.savedCards.splice(existsIndex, 1);
+      } else {
+        const found = state.recentHistory.find(c => c.uniqueId === uniqueId);
+        if (found) state.savedCards.push(found);
+      }
+      updateUI();
+    }
+
+    // Single Pull Logic
+    function rollSingle() {
+      state.pityCount++;
+      state.totalPulls++;
+
+      let pulled;
+      if (state.pityCount >= HARD_PITY) {
+        state.pityCount = 0;
+        pulled = DATABASE.legendary[0];
+      } else {
+        const roll = Math.random() * 100;
+        if (roll < 1.0) {
+          state.pityCount = 0;
+          pulled = DATABASE.legendary[0];
+        } else if (roll < 6.0) {
+          pulled = DATABASE.epic[0];
+        } else if (roll < 16.0) {
+          const rIdx = Math.floor(Math.random() * DATABASE.rare.length);
+          pulled = DATABASE.rare[rIdx];
+        } else {
+          const cIdx = Math.floor(Math.random() * DATABASE.common.length);
+          pulled = DATABASE.common[cIdx];
+        }
+      }
+
+      // Assign unique ID for bookmarking
+      const instance = JSON.parse(JSON.stringify(pulled));
+      instance.uniqueId = 'card_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+      return instance;
+    }
+
+    // Pull Execution & VFX Triggers
+    function handlePull(count) {
+      if (state.tickets < count) {
+        triggerQuizModal();
+        return;
+      }
+
+      state.tickets -= count;
+      let highestRarity = 'Common';
+
+      for (let i = 0; i < count; i++) {
+        const card = rollSingle();
+        // Add to recent queue (newest on front, limit to 10)
+        state.recentHistory.unshift(card);
+        if (state.recentHistory.length > 10) {
+          state.recentHistory.pop();
+        }
+
+        if (card.rarity === 'Legendary') highestRarity = 'Legendary';
+        else if (card.rarity === 'Epic' && highestRarity !== 'Legendary') highestRarity = 'Epic';
+        else if (card.rarity === 'Rare' && highestRarity !== 'Legendary' && highestRarity !== 'Epic') highestRarity = 'Rare';
+      }
+
+      // Fire FX based on top pulled card
+      triggerVFX(highestRarity);
+
+      updateUI();
+
+      if (state.tickets === 0) {
+        setTimeout(triggerQuizModal, 1400);
+      }
+    }
+
+    // Animation & Confetti FX
+    function triggerVFX(rarity) {
+      const overlay = document.getElementById('fxOverlay');
+      overlay.style.display = 'block';
+      overlay.className = '';
+
+      if (rarity === 'Rare') {
+        overlay.classList.add('rare-pulse');
+        setTimeout(() => { overlay.style.display = 'none'; }, 750);
+      } else if (rarity === 'Epic') {
+        overlay.classList.add('epic-shake');
+        setTimeout(() => { overlay.style.display = 'none'; }, 1000);
+      } else if (rarity === 'Legendary') {
+        overlay.classList.add('legendary-burst');
+        launchConfetti();
+        setTimeout(() => { overlay.style.display = 'none'; }, 1600);
+      } else {
+        overlay.style.display = 'none';
+      }
+    }
+
+    // Confetti Canvas Animation
+    function launchConfetti() {
+      const canvas = document.getElementById('confettiCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#FFE600', '#FFB300', '#FFFFFF', '#00A3FF', '#B336FF'];
+
+      for (let i = 0; i < 90; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          r: Math.random() * 6 + 3,
+          dx: (Math.random() - 0.5) * 14,
+          dy: (Math.random() - 0.7) * 16,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          tilt: Math.random() * 10,
+          tiltAngle: Math.random() * Math.PI,
+          life: 80
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        particles.forEach(p => {
+          if (p.life > 0) {
+            alive = true;
+            p.x += p.dx;
+            p.y += p.dy;
+            p.dy += 0.35; // gravity
+            p.life--;
+            ctx.beginPath();
+            ctx.fillStyle = p.color;
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+        if (alive) requestAnimationFrame(draw);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      draw();
+    }
+
+    // Detail Modal
+    function openDetailModal(item) {
+      const badge = document.getElementById('detailRarityBadge');
+      badge.textContent = item.rarity;
+      badge.style.background = item.color;
+      badge.style.color = item.rarity === 'Legendary' ? '#000' : '#fff';
+
+      document.getElementById('detailEmoji').textContent = item.emoji;
+      document.getElementById('detailTitle').textContent = item.title;
+      document.getElementById('detailBuff').textContent = `Perk: ${item.buff}`;
+      document.getElementById('detailBio').textContent = `"${item.bio}"`;
+
+      const statsContainer = document.getElementById('detailStats');
+      statsContainer.innerHTML = '';
+
+      item.stats.forEach(st => {
+        const row = document.createElement('div');
+        row.className = 'stat-row';
+        row.innerHTML = `
+          <div class="stat-label-row">
+            <span>${st.name}</span>
+            <span>${st.val} / ${st.max}</span>
+          </div>
+          <div class="stat-bar-bg">
+            <div class="stat-bar-fill" style="width: ${(st.val / st.max) * 100}%; background: ${item.color};"></div>
+          </div>
+        `;
+        statsContainer.appendChild(row);
+      });
+
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').style.display = 'none';
+    }
+
+    // Quiz System (Max 3 Questions)
+    function triggerQuizModal() {
+      if (state.quizAttemptsUsed >= 3) {
+        alert("All 3 academic quiz bonuses have been exhausted! Your luck is sealed.");
+        return;
+      }
+      loadQuizQuestion(state.quizAttemptsUsed);
+      document.getElementById('quizModal').style.display = 'flex';
+    }
+
+    function loadQuizQuestion(index) {
+      const qData = QUIZ_LIST[index];
+      document.getElementById('quizIndexLabel').textContent = index + 1;
+      document.getElementById('quizQuestionText').textContent = qData.q;
+      document.getElementById('quizHintBox').style.display = 'none';
+      document.getElementById('quizHintBox').textContent = qData.hint;
+      document.getElementById('quizFeedbackBox').style.display = 'none';
+      document.getElementById('btnQuizClose').style.display = 'none';
+
+      const optContainer = document.getElementById('quizOptionsContainer');
+      optContainer.innerHTML = '';
+
+      qData.opts.forEach((optText, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option-btn';
+        btn.textContent = optText;
+        btn.onclick = () => checkQuizAnswer(index, i);
+        optContainer.appendChild(btn);
+      });
+    }
+
+    function checkQuizAnswer(qIndex, selectedOpt) {
+      const qData = QUIZ_LIST[qIndex];
+      const feedback = document.getElementById('quizFeedbackBox');
+      const hint = document.getElementById('quizHintBox');
+
+      if (selectedOpt === qData.ans) {
+        // Correct
+        feedback.style.display = 'block';
+        feedback.style.background = 'rgba(46, 204, 113, 0.2)';
+        feedback.style.border = '1px solid #2ecc71';
+        feedback.style.color = '#2ecc71';
+        feedback.textContent = qData.exp + " 🎉 +10 Free Draws Awarded!";
+
+        // Disable options
+        document.querySelectorAll('.quiz-option-btn').forEach(b => b.disabled = true);
+
+        state.tickets += 10;
+        state.quizAttemptsUsed++;
+        updateUI();
+
+        document.getElementById('btnQuizClose').style.display = 'block';
+        document.getElementById('btnQuizClose').textContent = "Claim Draws & Continue";
+      } else {
+        // Incorrect: Show hint & allow retry
+        hint.style.display = 'block';
+        feedback.style.display = 'block';
+        feedback.style.background = 'rgba(231, 76, 60, 0.2)';
+        feedback.style.border = '1px solid #e74c3c';
+        feedback.style.color = '#ff6b6b';
+        feedback.textContent = "Incorrect! Review the hint above and try again.";
+      }
+    }
+
+    function closeQuizModal() {
+      document.getElementById('quizModal').style.display = 'none';
+    }
+
+    // Init
+    updateUI();
+  </script>
+</body>
+</html>
